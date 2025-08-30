@@ -42,10 +42,47 @@ function createGrid(size) {
     const tile = document.createElement('div');
     tile.className = 'tile';
     grid.appendChild(tile);
+
   }
 }
 
 function backToMenu() {
   document.getElementById('game').classList.add('hidden');
   document.getElementById('menu').classList.remove('hidden');
+
+  // === Swipe tactile optimisé ===
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+const minSwipeDistance = 30; // distance minimale pour valider un swipe
+
+const gameContainer = document.getElementById("game-container"); // la div principale du jeu
+
+gameContainer.addEventListener("touchstart", function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+}, false);
+
+gameContainer.addEventListener("touchend", function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    handleSwipe();
+}, false);
+
+function handleSwipe() {
+    let dx = touchEndX - touchStartX;
+    let dy = touchEndY - touchStartY;
+
+    if (Math.abs(dx) < minSwipeDistance && Math.abs(dy) < minSwipeDistance) return;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        // swipe horizontal
+        if (dx > 0) moveRight();
+        else moveLeft();
+    } else {
+        // swipe vertical
+        if (dy > 0) moveDown();
+        else moveUp();
+    }
 }
