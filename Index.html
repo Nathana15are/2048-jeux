@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2048 Ultra Deluxe v6 ⚡</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="bg"></canvas>
+
+  <div class="header">
+    <h1>2048 Ultra Deluxe v6 ⚡</h1>
+    <button id="likeBtn">❤️ Like <span id="likeCount">0</span></button>
+  </div>
+
+  <div class="container">
+    <h2>Choisis un mode</h2>
+    <button class="mode" onclick="startGame(4, false)">🎮 Classique (4×4)</button>
+    <button class="mode" onclick="startGame(4, true)">∞ Infini (4×4)</button>
+    <button class="mode" onclick="startGame(5, false)">🔥 Hardcore (5×5)</button>
+    <br><br>
+    <button class="classement" onclick="showLeaderboard()">🏆 Voir le classement</button>
+    <p>PC : flèches ⬆️⬇️⬅️➡️ • Mobile : swipe sur la grille</p>
+  </div>
+
+  <div id="gameContainer" class="hidden">
+    <h2 id="modeTitle"></h2>
+    <div id="grid"></div>
+    <p id="score">Score : 0</p>
+    <button onclick="backToMenu()">⬅️ Retour</button>
+  </div>
+
+  <div id="leaderboard" class="hidden">
+    <h2>Classement 🏆</h2>
+    <ul id="leaderboardList"></ul>
+    <button onclick="backToMenu()">⬅️ Retour</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
