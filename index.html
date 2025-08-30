@@ -2,34 +2,321 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>2048 Ultra Deluxe v6 ⚡</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2048 Ultra Deluxe v11 ⚡</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top left, #ff416c, #8e2de2);
+      position: relative;
+      color: white;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 25px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      max-width: 380px;
+      width: 90%;
+      display: none;
+      box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+    .active { display: block; }
+
+    h1, h2, h3 {
+      text-shadow: 0 0 12px rgba(255,255,255,0.7);
+    }
+
+    .btn {
+      display: block;
+      margin: 12px auto;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      color: white;
+      background: linear-gradient(135deg, #00c6ff, #ff00c8);
+      box-shadow: 0 0 15px rgba(255,255,255,0.4);
+      transition: transform 0.2s;
+    }
+    .btn:hover { transform: scale(1.05); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 20px auto;
+      width: 90vw;
+      max-width: 360px;
+    }
+
+    .cell {
+      aspect-ratio: 1/1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .scoreboard {
+      margin: 10px 0;
+      font-size: 18px;
+    }
+
+    .leaderboard ol {
+      padding-left: 20px;
+      text-align: left;
+    }
+
+    /* Couleurs flashy des tuiles */
+    .tile-2    { background: #00e1ff; }
+    .tile-4    { background: #00ff99; }
+    .tile-8    { background: #ff6f61; }
+    .tile-16   { background: #ff00c8; }
+    .tile-32   { background: #8e2de2; }
+    .tile-64   { background: #ffae00; }
+    .tile-128  { background: #00ffea; }
+    .tile-256  { background: #ff0040; }
+    .tile-512  { background: #0099ff; }
+    .tile-1024 { background: #ff6600; }
+    .tile-2048 { background: #00ff00; box-shadow: 0 0 20px #00ff00; }
+  </style>
 </head>
 <body>
-  <h1>2048 Ultra Deluxe v6 ⚡</h1>
+  <canvas id="particles"></canvas>
 
-  <!-- compteur de likes -->
-  <div id="likes">
-    ❤️ Like <span id="likeCount">15398</span>
-    <button id="likeBtn">+1</button>
+  <!-- Menu -->
+  <div class="screen active" id="menu">
+    <h1>2048 Ultra Deluxe v11 ⚡</h1>
+    <button class="btn" onclick="startGame()">🎮 Jouer</button>
+    <button class="btn" onclick="goLeaderboard()">🏆 Classement</button>
   </div>
 
-  <!-- menu de modes -->
-  <div id="menu">
-    <h2>Choisis ton mode :</h2>
-    <button onclick="setMode('classique')">Classique</button>
-    <button onclick="setMode('rapide')">Rapide</button>
-    <button onclick="setMode('difficile')">Difficile</button>
+  <!-- Jeu -->
+  <div class="screen" id="game">
+    <div class="scoreboard">
+      Score : <span id="score">0</span><br>
+      🏆 Meilleur : <span id="best-score">0</span>
+    </div>
+    <div class="grid" id="game-board"></div>
+    <button class="btn" onclick="restartGame()">🔄 Rejouer</button>
+    <button class="btn" onclick="backMenu()">⬅️ Menu</button>
   </div>
 
-  <!-- plateau du jeu -->
-  <div id="game-container">
-    <h2 id="modeTitle">Mode Classique</h2>
-    <div id="grid"></div>
-    <p>Score : <span id="score">0</span></p>
-    <button onclick="resetGame()">🔄 Rejouer</button>
+  <!-- Leaderboard -->
+  <div class="screen" id="leaderboard-screen">
+    <h2>🏆 Classement</h2>
+    <div class="leaderboard">
+      <ol id="leaderboard-list"></ol>
+    </div>
+    <button class="btn" onclick="backMenu()">⬅️ Retour</button>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // ===== PARTICULES =====
+    const canvas = document.getElementById("particles");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize); resize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random()*canvas.width;
+        this.y = Math.random()*canvas.height;
+        this.r = Math.random()*3+2;
+        this.dx = (Math.random()-0.5)*1.5;
+        this.dy = (Math.random()-0.5)*1.5;
+        this.hue = Math.random()*360;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+        ctx.fillStyle = `hsla(${this.hue},100%,60%,0.8)`;
+        ctx.fill();
+      }
+      update() {
+        this.x+=this.dx; this.y+=this.dy;
+        this.hue+=1; if(this.hue>360) this.hue=0;
+        if(this.x<0||this.x>canvas.width) this.dx*=-1;
+        if(this.y<0||this.y>canvas.height) this.dy*=-1;
+        this.draw();
+      }
+    }
+    for(let i=0;i<80;i++) particles.push(new Particle());
+    function animateParticles(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      particles.forEach(p=>p.update());
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // ===== JEU =====
+    const boardSize=4;
+    let board=[], score=0;
+    let bestScore=localStorage.getItem("bestScore")||0;
+    let leaderboard=JSON.parse(localStorage.getItem("leaderboard"))||[];
+    document.getElementById("best-score").innerText=bestScore;
+
+    const boardElement=document.getElementById("game-board");
+    const scoreElement=document.getElementById("score");
+
+    function initBoard(){
+      board=Array(boardSize).fill().map(()=>Array(boardSize).fill(0));
+      score=0;
+      updateScore();
+      addRandomTile(); addRandomTile();
+      drawBoard();
+    }
+
+    function addRandomTile(){
+      let empty=[];
+      for(let r=0;r<boardSize;r++){
+        for(let c=0;c<boardSize;c++){
+          if(board[r][c]===0) empty.push({r,c});
+        }
+      }
+      if(!empty.length) return;
+      let {r,c}=empty[Math.floor(Math.random()*empty.length)];
+      board[r][c]=Math.random()<0.9?2:4;
+    }
+
+    function drawBoard(){
+      boardElement.innerHTML="";
+      board.flat().forEach(v=>{
+        const cell=document.createElement("div");
+        cell.className="cell";
+        if(v>0) cell.classList.add("tile-"+v);
+        cell.textContent=v||"";
+        boardElement.appendChild(cell);
+      });
+    }
+
+    function updateScore(){
+      scoreElement.innerText=score;
+      if(score>bestScore){
+        bestScore=score;
+        localStorage.setItem("bestScore",bestScore);
+        document.getElementById("best-score").innerText=bestScore;
+      }
+    }
+
+    function move(dir){
+      let moved=false, rotated=false;
+      if(dir==="up"){board=rotate(board,1);rotated=true;}
+      if(dir==="down"){board=rotate(board,3);rotated=true;}
+      if(dir==="right"){board=rotate(board,2);rotated=true;}
+
+      for(let r=0;r<boardSize;r++){
+        let row=board[r].filter(v=>v);
+        for(let i=0;i<row.length-1;i++){
+          if(row[i]===row[i+1]){
+            row[i]*=2; score+=row[i]; row.splice(i+1,1);
+          }
+        }
+        while(row.length<boardSize) row.push(0);
+        if(row.toString()!==board[r].toString()) moved=true;
+        board[r]=row;
+      }
+
+      if(rotated){
+        if(dir==="up") board=rotate(board,3);
+        if(dir==="down") board=rotate(board,1);
+        if(dir==="right") board=rotate(board,2);
+      }
+
+      if(moved){addRandomTile();drawBoard();updateScore();}
+    }
+
+    function rotate(m,times){
+      for(let t=0;t<times;t++)
+        m=m[0].map((_,i)=>m.map(row=>row[i]).reverse());
+      return m;
+    }
+
+    function restartGame(){
+      if(score>0){
+        leaderboard.push(score);
+        leaderboard.sort((a,b)=>b-a);
+        leaderboard=leaderboard.slice(0,10);
+        localStorage.setItem("leaderboard",JSON.stringify(leaderboard));
+      }
+      initBoard();
+    }
+
+    function renderLeaderboard(){
+      const list=document.getElementById("leaderboard-list");
+      list.innerHTML="";
+      leaderboard.forEach(s=>{
+        const li=document.createElement("li");
+        li.textContent=s;
+        list.appendChild(li);
+      });
+    }
+
+    // Navigation
+    function startGame(){
+      showScreen("game");
+      initBoard();
+    }
+    function backMenu(){ showScreen("menu"); }
+    function goLeaderboard(){
+      renderLeaderboard();
+      showScreen("leaderboard-screen");
+    }
+
+    function showScreen(id){
+      document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    // Contrôles
+    document.addEventListener("keydown",e=>{
+      if(e.key==="ArrowUp") move("up");
+      if(e.key==="ArrowDown") move("down");
+      if(e.key==="ArrowLeft") move("left");
+      if(e.key==="ArrowRight") move("right");
+    });
+
+    let sx,sy;
+    document.addEventListener("touchstart",e=>{
+      sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+    });
+    document.addEventListener("touchend",e=>{
+      let dx=e.changedTouches[0].clientX-sx;
+      let dy=e.changedTouches[0].clientY-sy;
+      if(Math.abs(dx)>Math.abs(dy)){
+        if(dx>30) move("right"); else if(dx<-30) move("left");
+      } else {
+        if(dy>30) move("down"); else if(dy<-30) move("up");
+      }
+    },{passive:true});
+  </script>
 </body>
 </html>
