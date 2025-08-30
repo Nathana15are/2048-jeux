@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2048 Ultra Deluxe</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="splash-screen">
+    <h1 class="logo">2048 Ultra Deluxe</h1>
+    <audio id="splash-sound" src="splash.mp3" preload="auto"></audio>
+  </div>
+
+  <div id="menu" class="hidden">
+    <h2>Choisis ton mode</h2>
+    <button onclick="startGame('classic')">Classique 4x4</button>
+    <button onclick="startGame('infinite')">Infini 4x4</button>
+    <button onclick="startGame('hardcore')">Hardcore 5x5</button>
+    <div id="like-container">
+      <button id="like-btn">❤️ Like</button>
+      <span id="like-count">0</span> likes
+    </div>
+  </div>
+
+  <div id="game" class="hidden">
+    <div id="grid"></div>
+    <div id="score">Score : 0</div>
+    <button onclick="backToMenu()">Retour Menu</button>
+    <div id="leaderboard">
+      <h3>Leaderboard local</h3>
+      <ul id="leaderboard-list"></ul>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
