@@ -184,3 +184,11 @@ document.addEventListener("touchend", e=>{
   if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? "right" : "left");
   else move(dy > 0 ? "down" : "up");
 });
+// Empêcher le scroll quand on swipe sur la grille
+const gameContainer = document.getElementById("game-container");
+
+["touchstart", "touchmove", "touchend"].forEach(eventType => {
+  gameContainer.addEventListener(eventType, (e) => {
+    e.preventDefault();
+  }, { passive: false });
+});
