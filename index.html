@@ -2,49 +2,25 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2048 Ultra Deluxe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>2048 NTH</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="menu" class="menu">
-    <h1 class="title">2048 Ultra Deluxe</h1>
+  <canvas id="particles"></canvas>
 
-    <!-- Bouton WhatsApp -->
-    <button class="btn-whatsapp"
-      onclick="window.open('https://chat.whatsapp.com/JXDBM1ryE0bCfKq3pB6R4N?mode=ems_copy_c','_blank')">
-      💬 Rejoins notre groupe WhatsApp
-    </button>
-
-    <p>Choisis un mode</p>
-    <button onclick="startGame('classic')">🎮 Classique (4x4)</button>
-    <button onclick="startGame('infinite')">♾️ Infini (4x4)</button>
-    <button onclick="startGame('hardcore')">🔥 Hardcore (5x5)</button>
-  </div>
-
-  <div id="game-container" class="hidden">
-    <div class="top-bar">
-      <div id="score">Score : 0</div>
-      <div id="best-score">Best : 0</div>
+  <div class="game-container">
+    <h1>2048 NTH</h1>
+    <div class="menu">
+      <button id="newGame">Nouvelle Partie</button>
+      <button id="share">Partager</button>
+      <button id="whatsapp">📱 Rejoins notre groupe WhatsApp</button>
     </div>
-
-    <div id="grid"></div>
-
-    <div class="bottom-bar">
-      <button onclick="restartGame()">🔄 Rejouer</button>
-      <button onclick="shareScore()">📤 Partager</button>
-      <button onclick="backToMenu()">🏠 Menu</button>
-    </div>
-
-    <div id="leaderboard">
-      <h2>🏆 Classement local</h2>
-      <ol id="leaderboard-list"></ol>
-    </div>
-
+    <div id="game-board" class="board"></div>
+    <div id="score">Score : 0</div>
     <div id="game-over" class="hidden">
-      <h2>💀 Game Over</h2>
-      <button onclick="shareScore()">📤 Partager</button>
-      <button onclick="restartGame()">🔄 Rejouer</button>
+      <h2>Game Over</h2>
+      <button id="retry">Rejouer</button>
     </div>
   </div>
 
