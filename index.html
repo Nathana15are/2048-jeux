@@ -3,20 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2048</title>
+  <title>2048 Deluxe</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="game-container">
-    <h1>2048 Ultra Deluxe</h1>
-    <div class="score-board">
-      Score: <span id="score">0</span>
-    </div>
-    <div id="grid-container"></div>
-    <div class="buttons">
-      <button onclick="resetGame()">🔄 Recommencer</button>
-    </div>
+  <div class="menu">
+    <h1>2048 Deluxe</h1>
+    <button id="new-game">Nouvelle Partie</button>
+    <button id="show-leaderboard">Classement</button>
+    <button id="share-score">Partager mon score</button>
   </div>
+
+  <div class="game-container">
+    <div id="score-container">Score : <span id="score">0</span></div>
+    <div id="board" class="board"></div>
+  </div>
+
+  <div id="leaderboard" class="leaderboard hidden">
+    <h2>🏆 Classement Local</h2>
+    <ol id="leaderboard-list"></ol>
+    <button id="close-leaderboard">Fermer</button>
+  </div>
+
+  <canvas id="particles"></canvas>
   <script src="script.js"></script>
 </body>
 </html>
