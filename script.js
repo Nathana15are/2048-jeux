@@ -62,46 +62,54 @@ function addTile() {
 
 function move(direction) {
   let moved = false;
-  let merged = Array(gridSize).fill().map(()=>Array(gridSize).fill(false));
+  let mergedThisTurn = [];
 
   function slide(row) {
-    let arr = row.filter(v=>v);
-    for (let i=0; i<arr.length-1; i++) {
-      if (arr[i]===arr[i+1] && !merged[i]) {
-        arr[i]*=2;
-        score+=arr[i];
-        arr.splice(i+1,1);
+    row = row.filter(v => v !== 0);
+    for (let i = 0; i < row.length - 1; i++) {
+      if (row[i] === row[i + 1]) {
+        row[i] *= 2;
+        score += row[i];
+        row[i + 1] = 0;
+        mergedThisTurn.push(row[i]);
       }
     }
-    while (arr.length<gridSize) arr.push(0);
-    return arr;
+    row = row.filter(v => v !== 0);
+    while (row.length < gridSize) row.push(0);
+    return row;
   }
 
-  for (let r=0; r<gridSize; r++) {
-    let row;
-    if (direction==="left") {
-      row = slide(grid[r]);
-      if (row.toString()!==grid[r].toString()) moved=true;
-      grid[r]=row;
-    }
-    if (direction==="right") {
-      row = slide([...grid[r]].reverse()).reverse();
-      if (row.toString()!==grid[r].toString()) moved=true;
-      grid[r]=row;
+  if (direction === "left") {
+    for (let r = 0; r < gridSize; r++) {
+      let newRow = slide(grid[r]);
+      if (newRow.toString() !== grid[r].toString()) moved = true;
+      grid[r] = newRow;
     }
   }
 
-  for (let c=0; c<gridSize; c++) {
-    let col = grid.map(r=>r[c]);
-    if (direction==="up") {
+  if (direction === "right") {
+    for (let r = 0; r < gridSize; r++) {
+      let newRow = slide([...grid[r]].reverse()).reverse();
+      if (newRow.toString() !== grid[r].toString()) moved = true;
+      grid[r] = newRow;
+    }
+  }
+
+  if (direction === "up") {
+    for (let c = 0; c < gridSize; c++) {
+      let col = grid.map(r => r[c]);
       let newCol = slide(col);
-      if (newCol.toString()!==col.toString()) moved=true;
-      for (let r=0;r<gridSize;r++) grid[r][c]=newCol[r];
+      if (newCol.toString() !== col.toString()) moved = true;
+      for (let r = 0; r < gridSize; r++) grid[r][c] = newCol[r];
     }
-    if (direction==="down") {
+  }
+
+  if (direction === "down") {
+    for (let c = 0; c < gridSize; c++) {
+      let col = grid.map(r => r[c]);
       let newCol = slide(col.reverse()).reverse();
-      if (newCol.toString()!==col.toString()) moved=true;
-      for (let r=0;r<gridSize;r++) grid[r][c]=newCol[r];
+      if (newCol.toString() !== col.toString()) moved = true;
+      for (let r = 0; r < gridSize; r++) grid[r][c] = newCol[r];
     }
   }
 
@@ -109,23 +117,32 @@ function move(direction) {
     addTile();
     document.getElementById("score").textContent = score;
     renderGrid();
-    if (isGameOver()) showGameOver();
+
+    // Animation fusion
+    document.querySelectorAll(".tile").forEach(tile => {
+      if (mergedThisTurn.includes(parseInt(tile.textContent))) {
+        tile.classList.add("merged");
+        setTimeout(()=>tile.classList.remove("merged"),250);
+      }
+    });
+
+    if (!infiniteMode && isGameOver()) showGameOver();
   }
 }
 
 function isGameOver() {
-  for (let r=0;r<gridSize;r++) {
-    for (let c=0;c<gridSize;c++) {
+  for (let r = 0; r < gridSize; r++) {
+    for (let c = 0; c < gridSize; c++) {
       if (!grid[r][c]) return false;
-      if (r<gridSize-1 && grid[r][c]===grid[r+1][c]) return false;
-      if (c<gridSize-1 && grid[r][c]===grid[r][c+1]) return false;
+      if (r < gridSize - 1 && grid[r][c] === grid[r + 1][c]) return false;
+      if (c < gridSize - 1 && grid[r][c] === grid[r][c + 1]) return false;
     }
   }
   return true;
 }
 
 function showGameOver() {
-  document.getElementById("final-score").textContent = "Partie terminée ! Score : " + score;
+  document.getElementById("final-score").textContent = "💀 Game Over ! Score : " + score;
   document.getElementById("game-over").classList.remove("hidden");
 }
 
@@ -144,7 +161,7 @@ function shareScore() {
     navigator.share({title:"2048 Ultra Deluxe", text, url:"https://2048-nth.netlify.app/"});
   } else {
     navigator.clipboard.writeText(text);
-    alert("Score copié ! Partage-le à tes amis 😉");
+    alert("✅ Score copié ! Partage-le à tes amis 😉");
   }
 }
 
@@ -158,12 +175,12 @@ document.addEventListener("keydown", e=>{
 // Mobile swipe
 let startX, startY;
 document.addEventListener("touchstart", e=>{
-  startX=e.touches[0].clientX;
-  startY=e.touches[0].clientY;
+  startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
 });
 document.addEventListener("touchend", e=>{
-  let dx=e.changedTouches[0].clientX-startX;
-  let dy=e.changedTouches[0].clientY-startY;
-  if (Math.abs(dx)>Math.abs(dy)) move(dx>0?"right":"left");
-  else move(dy>0?"down":"up");
+  let dx = e.changedTouches[0].clientX - startX;
+  let dy = e.changedTouches[0].clientY - startY;
+  if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? "right" : "left");
+  else move(dy > 0 ? "down" : "up");
 });
