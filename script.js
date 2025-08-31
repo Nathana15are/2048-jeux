@@ -1,207 +1,169 @@
-const gridElement = document.getElementById("grid");
-const scoreElement = document.getElementById("score");
-const bestElement = document.getElementById("best");
-const leaderboardElement = document.getElementById("leaderboard");
-const menu = document.getElementById("menu");
-const gameContainer = document.getElementById("game-container");
-const endScreen = document.getElementById("end-screen");
-const endMessage = document.getElementById("end-message");
-
-let size = 4;
-let hardcore = false;
+const gridSize = 4;
 let grid = [];
 let score = 0;
-let best = localStorage.getItem("bestScore") || 0;
-let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
 
-bestElement.innerText = best;
+const gridContainer = document.getElementById("grid-container");
+const scoreDisplay = document.getElementById("score");
 
-function startGame(s, hard = false) {
-  size = s === 0 ? 4 : s;
-  hardcore = hard;
-  menu.classList.add("hidden");
-  endScreen.classList.add("hidden");
-  gameContainer.classList.remove("hidden");
-  initGrid();
-}
-
+// Création du fond (cases vides)
 function initGrid() {
-  grid = Array.from({ length: size }, () => Array(size).fill(0));
-  score = 0;
-  scoreElement.innerText = score;
-  gridElement.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-  gridElement.style.gridTemplateRows = `repeat(${size}, 1fr)`;
-  addTile();
-  addTile();
-  render();
+  gridContainer.innerHTML = "";
+  grid = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+
+  for (let i = 0; i < gridSize * gridSize; i++) {
+    let cell = document.createElement("div");
+    cell.classList.add("grid-cell");
+    gridContainer.appendChild(cell);
+  }
+
+  addRandomTile();
+  addRandomTile();
+  updateGrid();
 }
 
-function addTile() {
-  let empty = [];
-  grid.forEach((row, r) => row.forEach((val, c) => {
-    if (!val) empty.push({r, c});
-  }));
-  if (empty.length) {
-    let {r, c} = empty[Math.floor(Math.random() * empty.length)];
+function addRandomTile() {
+  let emptyCells = [];
+  for (let r = 0; r < gridSize; r++) {
+    for (let c = 0; c < gridSize; c++) {
+      if (grid[r][c] === 0) emptyCells.push({ r, c });
+    }
+  }
+
+  if (emptyCells.length > 0) {
+    let { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
     grid[r][c] = Math.random() < 0.9 ? 2 : 4;
   }
 }
 
-function render() {
-  gridElement.innerHTML = "";
-  grid.forEach(row => row.forEach(val => {
-    let tile = document.createElement("div");
-    tile.className = "tile";
-    tile.innerText = val || "";
-    tile.style.background = val ? getColor(val) : "rgba(255,255,255,0.05)";
-    gridElement.appendChild(tile);
-  }));
-  scoreElement.innerText = score;
-  bestElement.innerText = best;
-  updateLeaderboard();
-}
+function updateGrid() {
+  document.querySelectorAll(".tile").forEach(t => t.remove());
 
-function getColor(val) {
-  const colors = {
-    2: "#7FFFD4", 4: "#00CED1", 8: "#1E90FF", 16: "#9370DB",
-    32: "#FF69B4", 64: "#FF4500", 128: "#FFD700", 256: "#32CD32",
-    512: "#8A2BE2", 1024: "#FF1493", 2048: "#00FF7F"
-  };
-  return colors[val] || "#333";
-}
-
-function move(dir) {
-  let moved = false;
-  let oldGrid = JSON.stringify(grid);
-
-  for (let i = 0; i < size; i++) {
-    let row = (dir === "left" || dir === "right") ? grid[i] : grid.map(r => r[i]);
-    if (dir === "right" || dir === "down") row = row.reverse();
-    let newRow = row.filter(v => v);
-    for (let j = 0; j < newRow.length - 1; j++) {
-      if (newRow[j] === newRow[j+1]) {
-        newRow[j] *= 2;
-        score += newRow[j];
-        newRow.splice(j+1, 1);
+  for (let r = 0; r < gridSize; r++) {
+    for (let c = 0; c < gridSize; c++) {
+      if (grid[r][c] !== 0) {
+        let tile = document.createElement("div");
+        tile.classList.add("tile");
+        tile.textContent = grid[r][c];
+        tile.style.background = getTileColor(grid[r][c]);
+        setTilePosition(tile, r, c);
+        gridContainer.appendChild(tile);
       }
     }
-    while (newRow.length < size) newRow.push(0);
-    if (dir === "right" || dir === "down") newRow.reverse();
-    if (dir === "left" || dir === "right") grid[i] = newRow;
-    else newRow.forEach((val, r) => grid[r][i] = val);
   }
-
-  if (JSON.stringify(grid) !== oldGrid) {
-    moved = true;
-    addTile();
-    render();
-  }
-
-  if (hardcore && score < 0) gameOver();
-  if (isGameOver()) gameOver();
+  scoreDisplay.textContent = score;
 }
 
-function isGameOver() {
-  return !grid.flat().includes(0) && !canMerge();
+function setTilePosition(tile, r, c) {
+  const size = 100; // largeur case (85px + marge)
+  tile.style.transform = `translate(${c * size}px, ${r * size}px)`;
 }
 
-function canMerge() {
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (grid[r][c] === grid[r][c+1] || (grid[r+1] && grid[r][c] === grid[r+1][c])) return true;
+function getTileColor(value) {
+  switch (value) {
+    case 2: return "#eee4da";
+    case 4: return "#ede0c8";
+    case 8: return "#f2b179";
+    case 16: return "#f59563";
+    case 32: return "#f67c5f";
+    case 64: return "#f65e3b";
+    case 128: return "#edcf72";
+    case 256: return "#edcc61";
+    case 512: return "#edc850";
+    case 1024: return "#edc53f";
+    case 2048: return "#edc22e";
+    default: return "#3c3a32";
+  }
+}
+
+function move(direction) {
+  let moved = false;
+
+  function slide(row) {
+    row = row.filter(val => val);
+    for (let i = 0; i < row.length - 1; i++) {
+      if (row[i] === row[i + 1]) {
+        row[i] *= 2;
+        score += row[i];
+        row[i + 1] = 0;
+        moved = true;
+      }
+    }
+    row = row.filter(val => val);
+    while (row.length < gridSize) row.push(0);
+    return row;
+  }
+
+  for (let r = 0; r < gridSize; r++) {
+    let row = grid[r];
+    if (direction === "left") {
+      let newRow = slide(row);
+      if (newRow.toString() !== row.toString()) moved = true;
+      grid[r] = newRow;
+    }
+    if (direction === "right") {
+      let newRow = slide(row.reverse()).reverse();
+      if (newRow.toString() !== row.toString()) moved = true;
+      grid[r] = newRow;
     }
   }
-  return false;
-}
 
-function gameOver() {
-  gameContainer.classList.add("hidden");
-  endScreen.classList.remove("hidden");
-  endMessage.innerText = `Partie terminée ! Score : ${score}`;
-  if (score > best) {
-    best = score;
-    localStorage.setItem("bestScore", best);
+  if (direction === "up" || direction === "down") {
+    for (let c = 0; c < gridSize; c++) {
+      let col = grid.map(row => row[c]);
+      if (direction === "up") {
+        let newCol = slide(col);
+        for (let r = 0; r < gridSize; r++) {
+          if (grid[r][c] !== newCol[r]) moved = true;
+          grid[r][c] = newCol[r];
+        }
+      }
+      if (direction === "down") {
+        let newCol = slide(col.reverse()).reverse();
+        for (let r = 0; r < gridSize; r++) {
+          if (grid[r][c] !== newCol[r]) moved = true;
+          grid[r][c] = newCol[r];
+        }
+      }
+    }
   }
-  leaderboard.push(score);
-  leaderboard.sort((a, b) => b - a);
-  leaderboard = leaderboard.slice(0, 5);
-  localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
-  updateLeaderboard();
-}
 
-function updateLeaderboard() {
-  leaderboardElement.innerHTML = leaderboard.map(s => `<li>${s}</li>`).join("");
-}
-
-function restart() {
-  startGame(size, hardcore);
-}
-
-function backToMenu() {
-  gameContainer.classList.add("hidden");
-  endScreen.classList.add("hidden");
-  menu.classList.remove("hidden");
-}
-
-function shareScore() {
-  const text = `J'ai fait ${score} points sur 2048 Ultra Deluxe v3 ! 🔥`;
-  if (navigator.share) {
-    navigator.share({ text });
-  } else {
-    alert(text);
+  if (moved) {
+    addRandomTile();
+    updateGrid();
   }
 }
 
-// touches
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowUp") move("up");
-  if (e.key === "ArrowDown") move("down");
+function resetGame() {
+  score = 0;
+  initGrid();
+}
+
+// Contrôles clavier
+document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") move("left");
   if (e.key === "ArrowRight") move("right");
+  if (e.key === "ArrowUp") move("up");
+  if (e.key === "ArrowDown") move("down");
 });
 
-// swipe mobile
+// Contrôles tactiles
 let startX, startY;
-gridElement.addEventListener("touchstart", e => {
+gridContainer.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
   startY = e.touches[0].clientY;
 });
-gridElement.addEventListener("touchend", e => {
+
+gridContainer.addEventListener("touchend", e => {
   let dx = e.changedTouches[0].clientX - startX;
   let dy = e.changedTouches[0].clientY - startY;
+
   if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 50) move("right");
-    else if (dx < -50) move("left");
+    if (dx > 0) move("right");
+    else move("left");
   } else {
-    if (dy > 50) move("down");
-    else if (dy < -50) move("up");
+    if (dy > 0) move("down");
+    else move("up");
   }
 });
 
-// particules
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-let particles = Array.from({length: 100}, () => ({
-  x: Math.random() * canvas.width,
-  y: Math.random() * canvas.height,
-  dx: (Math.random() - 0.5) * 1,
-  dy: (Math.random() - 0.5) * 1,
-  size: Math.random() * 2 + 1
-}));
-function animateParticles() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = "rgba(255,255,255,0.7)";
-  particles.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-    ctx.fill();
-    p.x += p.dx;
-    p.y += p.dy;
-    if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-    if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-  });
-  requestAnimationFrame(animateParticles);
-}
-animateParticles();
+initGrid();
