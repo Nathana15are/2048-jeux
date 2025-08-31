@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2048 NTH</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="menu">
+    <h1>2048 NTH</h1>
+    <button onclick="startGame(4)">Mode 4x4</button>
+    <button onclick="startGame(5)">Mode 5x5</button>
+    <button onclick="startGame(6)">Mode 6x6</button>
+    <button class="whatsapp" onclick="window.open('https://chat.whatsapp.com/JXDBM1ryE0bCfKq3pB6R4N?mode=ems_copy_c','_blank')">📱 Rejoins notre groupe WhatsApp</button>
+  </div>
+
+  <div id="game-container" class="hidden">
+    <div class="header">
+      <div id="score">Score: 0</div>
+      <button id="shareBtn">Partager</button>
+    </div>
+    <canvas id="particleCanvas"></canvas>
+    <div id="grid"></div>
+    <div id="game-over" class="hidden">
+      <h2>Game Over</h2>
+      <button onclick="restartGame()">Rejouer</button>
+    </div>
+    <div id="leaderboard"></div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
