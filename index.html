@@ -3,28 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2048 Ultra Deluxe</title>
+  <title>2048 Ultra Deluxe ⚡</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Menu principal -->
   <div id="menu">
     <h1>2048 Ultra Deluxe ⚡</h1>
     <p>Choisis un mode</p>
-    <div class="mode-buttons">
-      <button onclick="startGame(4, false)">🎮 Classique (4x4)</button>
-      <button onclick="startGame(4, true)">♾️ Infini (4x4)</button>
-      <button onclick="startGame(5, false)">🔥 Hardcore (5x5)</button>
-    </div>
+    <button onclick="startGame(4,false)">🎮 Classique (4x4)</button>
+    <button onclick="startGame(4,true)">♾️ Infini (4x4)</button>
+    <button onclick="startGame(5,false)">🔥 Hardcore (5x5)</button>
   </div>
 
+  <!-- Jeu -->
   <div id="game-container" style="display:none;">
-    <div id="score-container">Score : <span id="score">0</span></div>
+    <div class="top-bar">
+      <span>Score : <span id="score">0</span></span>
+      <button onclick="returnToMenu()">⬅️ Menu</button>
+    </div>
     <div id="grid-container"></div>
+
+    <!-- Game Over -->
     <div id="game-over" class="hidden">
-      <h2 id="final-score"></h2>
-      <button onclick="shareScore()">Partager mon score</button>
-      <button onclick="restartGame()">Rejouer</button>
-      <button onclick="returnToMenu()">Menu</button>
+      <h2 id="final-score">💀 Game Over !</h2>
+      <button onclick="restartGame()">🔄 Rejouer</button>
+      <button onclick="returnToMenu()">🏠 Menu</button>
+      <button onclick="shareScore()">📤 Partager</button>
     </div>
   </div>
 
