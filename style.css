@@ -16,6 +16,13 @@ h1 {
   margin-bottom: 20px;
   font-size: 32px;
 }
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* empêche le scroll */
+  height: 100%;
+  touch-action: none; /* bloque le swipe natif du navigateur */
+}
 
 .buttons {
   display: flex;
