@@ -1,0 +1,91 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background: #0f0f1a;
+  color: white;
+  text-align: center;
+  overflow: hidden;
+}
+
+canvas#particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.hidden {
+  display: none;
+}
+
+.menu, .game-container, .end-screen {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 40px auto;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin: 8px;
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+#grid {
+  display: grid;
+  gap: 10px;
+  margin: 20px auto;
+  background: rgba(0,0,0,0.2);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  border-radius: 8px;
+  font-size: 1.5em;
+  color: white;
+  min-height: 60px;
+}
+
+.controls {
+  margin-top: 10px;
+}
+
+.leaderboard {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.leaderboard ul {
+  list-style: none;
+  padding: 0;
+}
+
+.leaderboard li {
+  padding: 5px 0;
+}
