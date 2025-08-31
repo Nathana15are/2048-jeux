@@ -1,93 +1,80 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: "Poppins", sans-serif;
-}
-
 body {
-  background: linear-gradient(135deg, #1f1c2c, #928dab);
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top, #1a002b, #000);
   color: white;
+  text-align: center;
+  overflow: hidden;
 }
 
 h1 {
-  margin-bottom: 15px;
-  text-align: center;
+  margin-top: 30px;
+  font-size: 2.5em;
+  background: linear-gradient(90deg, #00f0ff, #ff00ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.menu button, .leaderboard button {
-  background: rgba(255,255,255,0.2);
+#menu {
+  margin-top: 60px;
+}
+
+.mode-buttons button {
+  margin: 10px;
+  padding: 15px 25px;
+  font-size: 1.2em;
   border: none;
-  backdrop-filter: blur(8px);
-  color: white;
-  padding: 10px 20px;
   border-radius: 12px;
-  margin: 5px;
   cursor: pointer;
-  transition: transform 0.2s, background 0.3s;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  color: white;
+  transition: transform 0.2s;
 }
 
-.menu button:hover, .leaderboard button:hover {
-  background: rgba(255,255,255,0.3);
+.mode-buttons button:hover {
   transform: scale(1.05);
+  background: rgba(255,255,255,0.2);
 }
 
-.board {
+#grid-container {
+  margin: 20px auto;
   display: grid;
-  grid-template-columns: repeat(4, 80px);
-  grid-template-rows: repeat(4, 80px);
-  gap: 10px;
-  margin-top: 20px;
-  position: relative;
+  gap: 8px;
+  justify-content: center;
 }
 
 .tile {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 1.4em;
   font-weight: bold;
   border-radius: 8px;
-  background: rgba(255,255,255,0.15);
-  color: white;
-  position: absolute;
-  transition: transform 0.2s ease-in-out;
+  transition: all 0.15s ease-in-out;
 }
 
-#score-container {
-  margin-bottom: 10px;
-  font-size: 18px;
+#game-over {
+  margin-top: 20px;
 }
 
-.leaderboard {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.7);
-  padding: 20px;
-  border-radius: 12px;
-  backdrop-filter: blur(6px);
-  text-align: center;
-}
-
-.hidden {
+#game-over.hidden {
   display: none;
 }
 
-canvas#particles {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
+#game-over button {
+  margin: 10px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+#game-over button:hover {
+  background: rgba(255,255,255,0.3);
 }
