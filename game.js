@@ -9,6 +9,44 @@ function startGame(size) {
   initGrid();
   drawGrid();
 }
+// Gestion du swipe tactile
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+document.addEventListener("touchstart", function (event) {
+    touchStartX = event.changedTouches[0].screenX;
+    touchStartY = event.changedTouches[0].screenY;
+}, false);
+
+document.addEventListener("touchend", function (event) {
+    touchEndX = event.changedTouches[0].screenX;
+    touchEndY = event.changedTouches[0].screenY;
+
+    handleSwipe();
+}, false);
+
+function handleSwipe() {
+    let dx = touchEndX - touchStartX;
+    let dy = touchEndY - touchStartY;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        // Swipe horizontal
+        if (dx > 30) {
+            move("right");
+        } else if (dx < -30) {
+            move("left");
+        }
+    } else {
+        // Swipe vertical
+        if (dy > 30) {
+            move("down");
+        } else if (dy < -30) {
+            move("up");
+        }
+    }
+}
 
 function initGrid() {
   grid = Array.from({length: gridSize}, () => Array(gridSize).fill(0));
