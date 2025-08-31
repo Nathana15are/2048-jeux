@@ -8,23 +8,18 @@
 </head>
 <body>
   <div class="menu">
-    <h1>2048 NTH</h1>
-    <div class="buttons">
-      <button onclick="startGame(4)">Mode 4x4</button>
-      <button onclick="startGame(5)">Mode 5x5</button>
-      <button onclick="startGame(6)">Mode 6x6</button>
-      <button onclick="showLeaderboard()">🏆 Leaderboard</button>
-      <button onclick="shareScore()">📤 Partager</button>
-      <a href="https://chat.whatsapp.com/JXDBM1ryE0bCfKq3pB6R4N?mode=ems_copy_c" target="_blank" class="whatsapp-btn">💬 Rejoins notre groupe WhatsApp</a>
-    </div>
-  </div>
+    <h1 class="title">2048 <span>Ultra Deluxe</span></h1>
+    <div class="icon">⚡</div>
+    <p class="subtitle">Choisis un mode</p>
 
-  <div id="game-container">
-    <div id="grid"></div>
-    <div id="score-container">
-      <p>Score : <span id="score">0</span></p>
-      <p>Best : <span id="best">0</span></p>
-    </div>
+    <button onclick="startGame(4)" class="btn">🎮 Classique (4x4)</button>
+    <button onclick="startInfinite()" class="btn">♾️ Infini (4x4)</button>
+    <button onclick="startGame(5)" class="btn">🔥 Hardcore (5x5)</button>
+    <button onclick="startGame(6)" class="btn">🧠 Extrême (6x6)</button>
+
+    <button onclick="openLeaderboard()" class="btn secondary">🏆 Leaderboard</button>
+    <button onclick="shareGame()" class="btn secondary">📤 Partager</button>
+    <a href="https://chat.whatsapp.com/JXDBM1ryE0bCfKq3pB6R4N?mode=ems_copy_c" target="_blank" class="btn whatsapp">💬 Rejoins notre WhatsApp</a>
   </div>
 
   <script src="script.js"></script>
