@@ -1,183 +1,169 @@
-const boardSize = 4;
-let board = [];
+let gridSize = 4;
+let infiniteMode = false;
+let grid = [];
 let score = 0;
-const boardElement = document.getElementById("board");
-const scoreElement = document.getElementById("score");
 
-document.getElementById("new-game").addEventListener("click", startGame);
-document.getElementById("show-leaderboard").addEventListener("click", showLeaderboard);
-document.getElementById("close-leaderboard").addEventListener("click", () => {
-  document.getElementById("leaderboard").classList.add("hidden");
-});
-document.getElementById("share-score").addEventListener("click", shareScore);
-
-function startGame() {
-  board = Array(boardSize).fill().map(() => Array(boardSize).fill(0));
+function startGame(size, infinite) {
+  gridSize = size;
+  infiniteMode = infinite;
   score = 0;
-  scoreElement.textContent = score;
-  addRandomTile();
-  addRandomTile();
-  renderBoard();
+  document.getElementById("score").textContent = score;
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("game-container").style.display = "block";
+  document.getElementById("game-over").classList.add("hidden");
+  initGrid();
 }
 
-function addRandomTile() {
-  let empty = [];
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (board[i][j] === 0) empty.push({ x: i, y: j });
-    }
-  }
-  if (empty.length > 0) {
-    let spot = empty[Math.floor(Math.random() * empty.length)];
-    board[spot.x][spot.y] = Math.random() < 0.9 ? 2 : 4;
-  }
+function initGrid() {
+  grid = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+  addTile();
+  addTile();
+  renderGrid();
 }
 
-function renderBoard() {
-  boardElement.innerHTML = "";
-  for (let i = 0; i < boardSize; i++) {
-    for (let j = 0; j < boardSize; j++) {
-      if (board[i][j] !== 0) {
-        const tile = document.createElement("div");
-        tile.className = "tile";
-        tile.style.transform = `translate(${j * 90}px, ${i * 90}px)`;
-        tile.textContent = board[i][j];
-        tile.style.background = getTileColor(board[i][j]);
-        boardElement.appendChild(tile);
+function renderGrid() {
+  const gridContainer = document.getElementById("grid-container");
+  gridContainer.style.gridTemplateColumns = `repeat(${gridSize}, 70px)`;
+  gridContainer.innerHTML = "";
+
+  grid.forEach(row => {
+    row.forEach(value => {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      if (value > 0) {
+        tile.textContent = value;
+        tile.style.background = getTileColor(value);
+      } else {
+        tile.style.background = "rgba(255,255,255,0.05)";
       }
-    }
-  }
+      gridContainer.appendChild(tile);
+    });
+  });
 }
 
 function getTileColor(value) {
   const colors = {
-    2: "#eee4da", 4: "#ede0c8", 8: "#f2b179",
-    16: "#f59563", 32: "#f67c5f", 64: "#f65e3b",
-    128: "#edcf72", 256: "#edcc61", 512: "#edc850",
-    1024: "#edc53f", 2048: "#edc22e"
+    2: "#00ffff", 4: "#00ff88", 8: "#aaff00",
+    16: "#ffcc00", 32: "#ff8800", 64: "#ff0044",
+    128: "#ff00cc", 256: "#aa00ff", 512: "#5500ff",
+    1024: "#00aaff", 2048: "#00ffcc"
   };
-  return colors[value] || "#3c3a32";
+  return colors[value] || "#ffffff";
 }
 
-function slide(row) {
-  let arr = row.filter(val => val);
-  for (let i = 0; i < arr.length - 1; i++) {
-    if (arr[i] === arr[i + 1]) {
-      arr[i] *= 2;
-      score += arr[i];
-      arr[i + 1] = 0;
-    }
+function addTile() {
+  const empty = [];
+  grid.forEach((row, r) => row.forEach((v, c) => { if (!v) empty.push([r,c]); }));
+  if (empty.length) {
+    const [r,c] = empty[Math.floor(Math.random()*empty.length)];
+    grid[r][c] = Math.random() < 0.9 ? 2 : 4;
   }
-  arr = arr.filter(val => val);
-  while (arr.length < boardSize) arr.push(0);
-  return arr;
-}
-
-function rotateLeft(matrix) {
-  return matrix[0].map((_, i) => matrix.map(row => row[i])).reverse();
 }
 
 function move(direction) {
   let moved = false;
-  for (let i = 0; i < direction; i++) board = rotateLeft(board);
-  for (let i = 0; i < boardSize; i++) {
-    let newRow = slide(board[i]);
-    if (board[i].toString() !== newRow.toString()) moved = true;
-    board[i] = newRow;
+  let merged = Array(gridSize).fill().map(()=>Array(gridSize).fill(false));
+
+  function slide(row) {
+    let arr = row.filter(v=>v);
+    for (let i=0; i<arr.length-1; i++) {
+      if (arr[i]===arr[i+1] && !merged[i]) {
+        arr[i]*=2;
+        score+=arr[i];
+        arr.splice(i+1,1);
+      }
+    }
+    while (arr.length<gridSize) arr.push(0);
+    return arr;
   }
-  for (let i = direction; i < 4; i++) board = rotateLeft(board);
+
+  for (let r=0; r<gridSize; r++) {
+    let row;
+    if (direction==="left") {
+      row = slide(grid[r]);
+      if (row.toString()!==grid[r].toString()) moved=true;
+      grid[r]=row;
+    }
+    if (direction==="right") {
+      row = slide([...grid[r]].reverse()).reverse();
+      if (row.toString()!==grid[r].toString()) moved=true;
+      grid[r]=row;
+    }
+  }
+
+  for (let c=0; c<gridSize; c++) {
+    let col = grid.map(r=>r[c]);
+    if (direction==="up") {
+      let newCol = slide(col);
+      if (newCol.toString()!==col.toString()) moved=true;
+      for (let r=0;r<gridSize;r++) grid[r][c]=newCol[r];
+    }
+    if (direction==="down") {
+      let newCol = slide(col.reverse()).reverse();
+      if (newCol.toString()!==col.toString()) moved=true;
+      for (let r=0;r<gridSize;r++) grid[r][c]=newCol[r];
+    }
+  }
+
   if (moved) {
-    addRandomTile();
-    renderBoard();
-    scoreElement.textContent = score;
-    saveScore();
+    addTile();
+    document.getElementById("score").textContent = score;
+    renderGrid();
+    if (isGameOver()) showGameOver();
   }
 }
 
-// 🎮 Contrôles clavier
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowLeft") move(0);
-  if (e.key === "ArrowUp") move(1);
-  if (e.key === "ArrowRight") move(2);
-  if (e.key === "ArrowDown") move(3);
-});
-
-// 📱 Swipe mobile
-let startX, startY;
-boardElement.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-  startY = e.touches[0].clientY;
-});
-boardElement.addEventListener("touchend", e => {
-  let dx = e.changedTouches[0].clientX - startX;
-  let dy = e.changedTouches[0].clientY - startY;
-  if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 50) move(2);
-    else if (dx < -50) move(0);
-  } else {
-    if (dy > 50) move(3);
-    else if (dy < -50) move(1);
+function isGameOver() {
+  for (let r=0;r<gridSize;r++) {
+    for (let c=0;c<gridSize;c++) {
+      if (!grid[r][c]) return false;
+      if (r<gridSize-1 && grid[r][c]===grid[r+1][c]) return false;
+      if (c<gridSize-1 && grid[r][c]===grid[r][c+1]) return false;
+    }
   }
-});
-
-// 🏆 Classement local
-function saveScore() {
-  let scores = JSON.parse(localStorage.getItem("leaderboard")) || [];
-  scores.push(score);
-  scores = scores.sort((a, b) => b - a).slice(0, 10);
-  localStorage.setItem("leaderboard", JSON.stringify(scores));
+  return true;
 }
 
-function showLeaderboard() {
-  let scores = JSON.parse(localStorage.getItem("leaderboard")) || [];
-  let list = document.getElementById("leaderboard-list");
-  list.innerHTML = "";
-  scores.forEach(s => {
-    let li = document.createElement("li");
-    li.textContent = s;
-    list.appendChild(li);
-  });
-  document.getElementById("leaderboard").classList.remove("hidden");
+function showGameOver() {
+  document.getElementById("final-score").textContent = "Partie terminée ! Score : " + score;
+  document.getElementById("game-over").classList.remove("hidden");
 }
 
-// 📤 Partage du score
+function restartGame() {
+  startGame(gridSize, infiniteMode);
+}
+
+function returnToMenu() {
+  document.getElementById("menu").style.display = "block";
+  document.getElementById("game-container").style.display = "none";
+}
+
 function shareScore() {
-  const text = `J’ai fait ${score} sur 2048 Deluxe ! Viens jouer 👉 https://2048-nth.netlify.app/`;
+  const text = `J'ai fait ${score} points sur 2048 Ultra Deluxe ⚡ ! Viens jouer ici 👉 https://2048-nth.netlify.app/`;
   if (navigator.share) {
-    navigator.share({ text });
+    navigator.share({title:"2048 Ultra Deluxe", text, url:"https://2048-nth.netlify.app/"});
   } else {
-    alert(text);
+    navigator.clipboard.writeText(text);
+    alert("Score copié ! Partage-le à tes amis 😉");
   }
 }
 
-// ✨ Fond particules
-const canvas = document.getElementById("particles");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+document.addEventListener("keydown", e=>{
+  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
+    e.preventDefault();
+    move(e.key.replace("Arrow","").toLowerCase());
+  }
+});
 
-let particles = Array.from({ length: 50 }, () => ({
-  x: Math.random() * canvas.width,
-  y: Math.random() * canvas.height,
-  r: Math.random() * 3 + 1,
-  dx: (Math.random() - 0.5) * 2,
-  dy: (Math.random() - 0.5) * 2
-}));
-
-function animateParticles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "rgba(255,255,255,0.7)";
-  particles.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fill();
-    p.x += p.dx;
-    p.y += p.dy;
-    if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
-    if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
-  });
-  requestAnimationFrame(animateParticles);
-}
-animateParticles();
-
-startGame();
+// Mobile swipe
+let startX, startY;
+document.addEventListener("touchstart", e=>{
+  startX=e.touches[0].clientX;
+  startY=e.touches[0].clientY;
+});
+document.addEventListener("touchend", e=>{
+  let dx=e.changedTouches[0].clientX-startX;
+  let dy=e.changedTouches[0].clientY-startY;
+  if (Math.abs(dx)>Math.abs(dy)) move(dx>0?"right":"left");
+  else move(dy>0?"down":"up");
+});
