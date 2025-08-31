@@ -3,29 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>2048 Deluxe</title>
+  <title>2048 Ultra Deluxe</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="menu">
-    <h1>2048 Deluxe</h1>
-    <button id="new-game">Nouvelle Partie</button>
-    <button id="show-leaderboard">Classement</button>
-    <button id="share-score">Partager mon score</button>
+  <div id="menu">
+    <h1>2048 Ultra Deluxe ⚡</h1>
+    <p>Choisis un mode</p>
+    <div class="mode-buttons">
+      <button onclick="startGame(4, false)">🎮 Classique (4x4)</button>
+      <button onclick="startGame(4, true)">♾️ Infini (4x4)</button>
+      <button onclick="startGame(5, false)">🔥 Hardcore (5x5)</button>
+    </div>
   </div>
 
-  <div class="game-container">
+  <div id="game-container" style="display:none;">
     <div id="score-container">Score : <span id="score">0</span></div>
-    <div id="board" class="board"></div>
+    <div id="grid-container"></div>
+    <div id="game-over" class="hidden">
+      <h2 id="final-score"></h2>
+      <button onclick="shareScore()">Partager mon score</button>
+      <button onclick="restartGame()">Rejouer</button>
+      <button onclick="returnToMenu()">Menu</button>
+    </div>
   </div>
 
-  <div id="leaderboard" class="leaderboard hidden">
-    <h2>🏆 Classement Local</h2>
-    <ol id="leaderboard-list"></ol>
-    <button id="close-leaderboard">Fermer</button>
-  </div>
-
-  <canvas id="particles"></canvas>
   <script src="script.js"></script>
 </body>
 </html>
